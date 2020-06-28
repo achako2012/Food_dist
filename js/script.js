@@ -208,7 +208,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
       const message = {
             loading: 'img/forms/original.svg ',
-            success: 'успех',
+            success: 'Мы с вами скоро свяжемся!',
             failure: 'что то пошло не так...'
       };
 
@@ -227,13 +227,9 @@ window.addEventListener('DOMContentLoaded', () => {
                   display: block;
                   margin: 0 auto; 
                   `;
-                  
+            
                   form.insertAdjacentElement('afterend', statusMessage);
-
-                  const request = new XMLHttpRequest();
-                  request.open('POST', 'server.php');
-
-                  request.setRequestHeader('Content-type', 'application/json');
+        
                   const formData = new FormData(form);
 
                   const object = {};
@@ -241,20 +237,24 @@ window.addEventListener('DOMContentLoaded', () => {
                         object[key] = value;
                   });
 
-                  const json = JSON.stringify(object);
-
-                  request.send(json);
-
-                  request.addEventListener('load', () => {
-                        if (request.status === 200) {
-                              console.log(request.response);
-                              showThanksModal(message.success);
-                              form.reset();
-                              statusMessage.remove();
-                        } else {
-                              showThanksModal(message.failure);
-                        }
+                  fetch('server.php', {
+                        method: "POST",
+                        headers:{
+                              'Content-type': 'application/json'
+                        },
+                        body: JSON.stringify(object)
+                  }).then(data => data.text())
+                  .then(data => {
+                        console.log(typeof data);
+                        console.log(data);
+                        showThanksModal(message.success);
+                        statusMessage.remove();
+                  }).catch (() => {
+                        showThanksModal(message.failure);
+                  }).finally(()=>{
+                        form.reset();
                   });
+
             });
       }
 
@@ -279,7 +279,7 @@ window.addEventListener('DOMContentLoaded', () => {
                   prevModalDialog.classList.add('show');
                   prevModalDialog.classList.remove('hide');
                   closeModal();
-            }, 4000);
+            }, 3000);
       }
 
 });
