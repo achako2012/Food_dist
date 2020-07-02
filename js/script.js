@@ -178,25 +178,36 @@ window.addEventListener('DOMContentLoaded', () => {
       const getResource = async (url) => {
             const res = await fetch(url);
 
-            if (!res.ok){
+            if (!res.ok) {
                   throw new Error(`Could not fetch ${url}, status: ${res.status}`);
             }
 
             return await res.json();
       };
 
-      getResource('http://localhost:3000/menu')
-      .then(data => {
-            data.forEach(({img, altimg, title, descr, price}) => {
-                  new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
-            });
-      });
+      // getResource('http://localhost:3000/menu')
+      // .then(data => {
+      //       data.forEach(({img, altimg, title, descr, price}) => {
+      //             new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+      //       });
+      // });
 
+      axios.get('http://localhost:3000/menu')
+            .then(data => {
+                  data.data.forEach(({
+                        img,
+                        altimg,
+                        title,
+                        descr,
+                        price
+                  }) => {
+                        new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+                  });
+            });
 
       //Forms
 
       const forms = document.querySelectorAll('form');
-      console.log(forms);
 
       const message = {
             loading: 'img/forms/original.svg ',
@@ -232,24 +243,24 @@ window.addEventListener('DOMContentLoaded', () => {
                   display: block;
                   margin: 0 auto; 
                   `;
-            
+
                   form.insertAdjacentElement('afterend', statusMessage);
-        
+
                   const formData = new FormData(form);
 
                   const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
                   postData('http://localhost:3000/requests', json)
-                  .then(data => {
-                        console.log(typeof data);
-                        console.log(data);
-                        showThanksModal(message.success);
-                        statusMessage.remove();
-                  }).catch (() => {
-                        showThanksModal(message.failure);
-                  }).finally(()=>{
-                        form.reset();
-                  });
+                        .then(data => {
+                              console.log(typeof data);
+                              console.log(data);
+                              showThanksModal(message.success);
+                              statusMessage.remove();
+                        }).catch(() => {
+                              showThanksModal(message.failure);
+                        }).finally(() => {
+                              form.reset();
+                        });
 
             });
       }
@@ -277,10 +288,9 @@ window.addEventListener('DOMContentLoaded', () => {
                   closeModal();
             }, 3000);
       }
-      
+
 
       fetch('http://localhost:3000/menu')
-      .then(data=> data.json())
-      .then(res => console.log(res));
-
+            .then(data => data.json())
+            .then(res => console.log(res));
 });
